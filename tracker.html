@@ -213,7 +213,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   </div>
 </div>
 
-<!-- TICKET MODAL -->
+					 
 <div id="ticketModal" class="modal-wrap" style="display:none">
   <div class="modal">
     <div class="modal-head"><h3 id="ticketModalTitle">Add Ticket</h3><button class="modal-close" onclick="closeM('ticketModal')">&#215;</button></div>
@@ -225,7 +225,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   </div>
 </div>
 
-<!-- UPLOAD MODAL -->
+					 
 <div id="uploadModal" class="modal-wrap" style="display:none">
   <div class="modal" style="max-width:600px">
     <div class="modal-head"><h3>&#8679; Upload Excel -- <span id="uploadProjName"></span></h3><button class="modal-close" onclick="closeM('uploadModal')">&#215;</button></div>
@@ -237,7 +237,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   </div>
 </div>
 
-<!-- ADD PROJECT MODAL -->
+						  
 <div id="projModal" class="modal-wrap" style="display:none">
   <div class="modal" style="max-width:460px">
     <div class="modal-head"><h3>New Project</h3><button class="modal-close" onclick="closeM('projModal')">&#215;</button></div>
@@ -273,8 +273,9 @@ const AVBG         = ["rgba(59,130,246,0.18)","rgba(16,185,129,0.18)","rgba(245,
 const MONTHS       = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 const params = new URLSearchParams(window.location.search);
-let currentRole = params.get("role") || "admin";
-if (!["admin","user"].includes(currentRole)) currentRole = "user";
+// UPDATED: Use a secret key instead of just "admin"
+let currentRole = params.get("role") === "edifecs_admin_2026" ? "admin" : "user";
+																  
 
 let projects = [];
 let currentPage = "dashboard", currentProj = null, ticketState = {}, parsedImport = [];
