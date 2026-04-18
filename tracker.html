@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title id="pageTitle">Edifecs Tracker</title>
+<title id="pageTitle">Project Health Tracker</title>
 <!--
 ╔══════════════════════════════════════════════════════════════╗
-║                EDIFECS TRACKER — SETUP GUIDE                 ║
+║           PROJECT HEALTH TRACKER — SETUP GUIDE              ║
 ╠══════════════════════════════════════════════════════════════╣
 ║                                                              ║
 ║  STEP 1 — Create your Google Sheet                           ║
@@ -20,21 +20,30 @@
 ║  • Paste the entire contents of Code.gs (the other file)     ║
 ║  • Save (Ctrl+S)                                             ║
 ║                                                              ║
-║  STEP 3 — Deploy as Web App                                  ║
+║  STEP 3 — Authorize the script (IMPORTANT)                   ║
+║  • In the Apps Script editor, click Run (▶) on any function  ║
+║  • Accept all Google permission popups                       ║
+║                                                              ║
+║  STEP 4 — Deploy as Web App                                  ║
 ║  • Click Deploy → New Deployment                             ║
 ║  • Type: Web App                                             ║
 ║  • Execute as: Me                                            ║
-║  • Who has access: Anyone                                    ║
+║  • Who has access: Anyone  ← must be "Anyone", not           ║
+║    "Anyone with Google account"                              ║
 ║  • Click Deploy → Copy the Web App URL                       ║
 ║                                                              ║
-║  STEP 4 — Paste URL below                                    ║
-║  • Find the line: const APPS_SCRIPT_URL = ""                 ║
+║  STEP 5 — Paste URL below                                    ║
+║  • Find: const APPS_SCRIPT_URL = ""                          ║
 ║  • Paste your URL between the quotes                         ║
 ║                                                              ║
-║  STEP 5 — Share links                                        ║
+║  STEP 6 — Test the connection                                ║
+║  • Open: your-url?action=getAll in browser                   ║
+║  • You should see JSON. If login page → permissions wrong    ║
+║                                                              ║
+║  STEP 7 — Share links                                        ║
 ║  • Admin link: yourfile.html?role=admin                      ║
 ║  • User link:  yourfile.html?role=user                       ║
-║  • Host on Google Drive, GitHub Pages, or any static host    ║
+║  • Host on GitHub Pages or any static host                   ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 -->
@@ -220,7 +229,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 <div id="appShell">
   <div class="sidebar">
     <div class="sb-brand">
-      <div class="brand-name" id="sidebarBrand">Edifecs Tracker</div>
+      <div class="brand-name" id="sidebarBrand">PHTracker</div>
       <div class="brand-role" id="roleLabel"></div>
     </div>
     <div class="sb-section">Main</div>
@@ -235,7 +244,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   <div class="main">
     <div class="main-inner">
       <div class="offline-banner" id="offlineBanner">
-        &#9888; Could not reach Google Sheets. Showing cached data. Check your Apps Script URL in the HTML file.
+        &#9888; Could not reach Google Sheets. Showing cached/demo data. Check your Apps Script URL and deployment settings.
       </div>
 
       <div id="page-dashboard" class="pg">
@@ -301,8 +310,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   <div class="modal" style="max-width:460px">
     <div class="modal-head"><h3>New Project</h3><button class="modal-close" onclick="closeM('projModal')">&#215;</button></div>
     <div class="modal-body">
-      <div class="field"><label>Project Name *</label><input id="np-name" placeholder="e.g. Team Alpha"></div>
-      <div class="field"><label>Interface / App</label><input id="np-iface" placeholder="e.g. Claims Processing (837)"></div>
+      <div class="field"><label>Project Name *</label><input id="np-name" placeholder="e.g. Account A"></div>
+      <div class="field"><label>Interface / App</label><input id="np-iface" placeholder="e.g. EDIFECS Claims (837)"></div>
       <div class="field"><label>Owner / Team Lead</label><input id="np-owner" placeholder="Name of team lead"></div>
     </div>
     <div class="modal-foot">
@@ -319,24 +328,22 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 // ════════════════════════════════════════════════════════
 //  ▶  PASTE YOUR APPS SCRIPT WEB APP URL BELOW
 // ════════════════════════════════════════════════════════
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx8DkqGoCNTgbHhT0h8PUnAwSWHb4_x3p5dRuwRkysuLcjjkA98xltbpK5cjVDIwMCKcA/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxl-6TO9VusELZTz4qteNqaWyO9TcrDQHbl7NRgWFvrrJbc67oQ6PhHWsNMgcfPBQCoxw/exec";
 // ════════════════════════════════════════════════════════
 
 // ════════════════════════════════════════════════════════
-//  ▶  CHANGE APP NAME HERE — updates title, sidebar, dashboard
-//     APP_SHORT_NAME appears in the sidebar (keep it short)
-//     APP_NAME appears in browser tab and dashboard heading
+//  ▶  CHANGE APP NAME HERE
 // ════════════════════════════════════════════════════════
-const APP_NAME       = "Edifecs Tracker";
-const APP_SHORT_NAME = "Edifecs Tracker";
+const APP_NAME       = "Project Health Tracker";
+const APP_SHORT_NAME = "PHTracker";
 // ════════════════════════════════════════════════════════
 
-const REGIONS = ["PROD","UAT","SIT","DEV"];
+const REGIONS      = ["PROD","UAT","SIT","DEV"];
 const TICKET_TYPES = ["JIRA","ITOPS","Exception","CR"];
-const STATUSES = [{v:"open",l:"Open"},{v:"inprogress",l:"In Progress"},{v:"hold",l:"On Hold"},{v:"completed",l:"Completed"}];
-const COLORS = ["#3B82F6","#10B981","#F59E0B","#8B5CF6","#F43F5E"];
-const AVBG = ["rgba(59,130,246,0.18)","rgba(16,185,129,0.18)","rgba(245,158,11,0.18)","rgba(139,92,246,0.18)","rgba(244,63,94,0.18)"];
-const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const STATUSES     = [{v:"open",l:"Open"},{v:"inprogress",l:"In Progress"},{v:"hold",l:"On Hold"},{v:"completed",l:"Completed"}];
+const COLORS       = ["#3B82F6","#10B981","#F59E0B","#8B5CF6","#F43F5E"];
+const AVBG         = ["rgba(59,130,246,0.18)","rgba(16,185,129,0.18)","rgba(245,158,11,0.18)","rgba(139,92,246,0.18)","rgba(244,63,94,0.18)"];
+const MONTHS       = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 const params = new URLSearchParams(window.location.search);
 let currentRole = params.get("role") || "admin";
@@ -344,24 +351,23 @@ if (!["admin","user"].includes(currentRole)) currentRole = "user";
 
 let projects = [];
 let currentPage = "dashboard", currentProj = null, ticketState = {}, parsedImport = [];
-let isLoading = false;
 
 // ── HELPERS ──────────────────────────────────────────────
 function today(){ return new Date().toISOString().slice(0,10); }
-function uid(){ return Math.random().toString(36).slice(2,8).toUpperCase(); }
-function nk(k){ return String(k).toLowerCase().replace(/[\s_\-]+/g,""); }
+function uid(){   return Math.random().toString(36).slice(2,8).toUpperCase(); }
+function nk(k){   return String(k).toLowerCase().replace(/[\s_\-]+/g,""); }
 function getProj(id){ return projects.find(p=>p.id===id); }
 
 function projStats(p){
   const t = p.tickets||[];
   return {
-    open: t.filter(x=>x.status!=="completed").length,
-    done: t.filter(x=>x.status==="completed").length,
+    open:  t.filter(x=>x.status!=="completed").length,
+    done:  t.filter(x=>x.status==="completed").length,
     total: t.length,
-    jira:  t.filter(x=>x.type==="JIRA"&&x.status!=="completed").length,
-    itops: t.filter(x=>x.type==="ITOPS"&&x.status!=="completed").length,
-    exc:   t.filter(x=>x.type==="Exception"&&x.status!=="completed").length,
-    cr:    t.filter(x=>x.type==="CR"&&x.status!=="completed").length,
+    jira:  t.filter(x=>x.type==="JIRA"      && x.status!=="completed").length,
+    itops: t.filter(x=>x.type==="ITOPS"     && x.status!=="completed").length,
+    exc:   t.filter(x=>x.type==="Exception" && x.status!=="completed").length,
+    cr:    t.filter(x=>x.type==="CR"        && x.status!=="completed").length,
   };
 }
 
@@ -395,25 +401,33 @@ function getYears(){
 }
 
 // ── API CALLS ─────────────────────────────────────────────
+// isConfigured checks if URL is set
 const isConfigured = ()=> APPS_SCRIPT_URL && APPS_SCRIPT_URL.length > 10;
 
+// GET — simple fetch, no special headers (CORS-safe)
 async function apiGet(params){
   if(!isConfigured()) return null;
   try{
     const url = APPS_SCRIPT_URL + "?" + new URLSearchParams(params);
-    const res = await fetch(url);
+    const res  = await fetch(url);
     const data = await res.json();
     if(data.error) throw new Error(data.error);
     return data;
   } catch(e){ console.error("API GET error:", e); return null; }
 }
 
+// POST — send as URL-encoded form data (NOT application/json)
+// This avoids CORS preflight which Apps Script cannot handle.
+// Code.gs reads it via e.parameter.data
 async function apiPost(body){
   if(!isConfigured()) return null;
   try{
     const res = await fetch(APPS_SCRIPT_URL, {
-      method:"POST", headers:{"Content-Type":"application/json"},
-      body: JSON.stringify(body), mode:"cors"
+      method: "POST",
+      body:   new URLSearchParams({ data: JSON.stringify(body) })
+      // No Content-Type header set manually — browser sets it to
+      // application/x-www-form-urlencoded automatically, which is
+      // a "simple request" and does NOT trigger a CORS preflight.
     });
     const data = await res.json();
     if(data.error) throw new Error(data.error);
@@ -439,27 +453,27 @@ async function loadData(force){
       if(!cached) projects = getSeedData();
     }
   } else {
-    document.getElementById("offlineBanner").style.display = "block";
+    document.getElementById("offlineBanner").style.display="block";
     if(!cached) projects = getSeedData();
   }
   showLoading(false);
   buildProjNav();
-  if(currentPage==="dashboard") renderDashboard();
-  else if(currentPage==="detail" && currentProj) renderDetail(currentProj);
-  else if(currentPage==="manage") renderManage();
+  if(currentPage==="dashboard")                        renderDashboard();
+  else if(currentPage==="detail" && currentProj)       renderDetail(currentProj);
+  else if(currentPage==="manage")                      renderManage();
 }
 
 function getSeedData(){
   const names=[
-    {name:"Team Alpha",iface:"Claims Processing (837)",ownerName:"Rajan M",color:"#3B82F6"},
-    {name:"Team Beta",iface:"Member Enrollment (834)",ownerName:"Sneha K",color:"#10B981"},
-    {name:"Team Gamma",iface:"Payment Remittance (835)",ownerName:"Arjun V",color:"#F59E0B"},
-    {name:"Team Delta",iface:"Provider Directory",ownerName:"Priya R",color:"#8B5CF6"},
-    {name:"Team Epsilon",iface:"Eligibility Checker",ownerName:"Amal S",color:"#F43F5E"},
+    {name:"Account A",iface:"EDIFECS Claims (837)",    ownerName:"Rajan M",  color:"#3B82F6"},
+    {name:"Account B",iface:"Member Enrollment (834)", ownerName:"Sneha K",  color:"#10B981"},
+    {name:"Account C",iface:"Payment Remittance (835)",ownerName:"Arjun V",  color:"#F59E0B"},
+    {name:"Account D",iface:"Provider Directory",      ownerName:"Priya R",  color:"#8B5CF6"},
+    {name:"Account E",iface:"Eligibility Checker",     ownerName:"Amal S",   color:"#F43F5E"},
   ];
   const dates=["2024-03-12","2024-07-05","2024-11-18","2025-01-22","2025-04-10","2025-04-17"];
-  const sts=["open","inprogress","hold","completed","open","inprogress"];
-  const tys=["JIRA","ITOPS","Exception","CR","JIRA","ITOPS"];
+  const sts  =["open","inprogress","hold","completed","open","inprogress"];
+  const tys  =["JIRA","ITOPS","Exception","CR","JIRA","ITOPS"];
   return names.map((n,pi)=>{
     const id="P"+(pi+1);
     const tickets=[];
@@ -487,7 +501,7 @@ function init(){
   document.getElementById("sidebarBrand").textContent = APP_SHORT_NAME;
   const label = document.getElementById("roleLabel");
   label.textContent = currentRole==="admin"?"Admin":"User";
-  label.className = "brand-role "+(currentRole==="admin"?"role-admin":"role-user");
+  label.className   = "brand-role "+(currentRole==="admin"?"role-admin":"role-user");
   document.getElementById("adminNavSection").style.display = currentRole==="admin"?"block":"none";
   loadData(false);
 }
@@ -536,10 +550,10 @@ function renderDashboard(){
   projects.forEach(p=>{ const s=projStats(p); allO+=s.open; allD+=s.done; allT+=s.total; });
   document.getElementById("dashSub").textContent = `${projects.length} active projects · ${allT} total tickets`;
   document.getElementById("statStrip").innerHTML=[
-    {n:projects.length,l:"Projects",c:"#3B82F6"},
-    {n:allT,l:"Total Tickets",c:"#14B8A6"},
-    {n:allO,l:"Open / Active",c:"#F43F5E"},
-    {n:allD,l:"Completed",c:"#10B981"},
+    {n:projects.length,l:"Projects",      c:"#3B82F6"},
+    {n:allT,           l:"Total Tickets", c:"#14B8A6"},
+    {n:allO,           l:"Open / Active", c:"#F43F5E"},
+    {n:allD,           l:"Completed",     c:"#10B981"},
   ].map(s=>`<div class="stat-box" style="border-color:${s.c}"><div class="sn" style="color:${s.c}">${s.n}</div><div class="sl">${s.l}</div></div>`).join("");
 
   const filtered = projects.filter(p=>!search||(p.name+p.iface+p.ownerName).toLowerCase().includes(search));
@@ -549,9 +563,11 @@ function renderDashboard(){
       <h3>&#9888; Setup Required — Paste your Apps Script URL</h3>
       <ol>
         <li>Go to <strong>sheets.google.com</strong> → create a new spreadsheet</li>
-        <li>Click <strong>Extensions → Apps Script</strong> → paste the <code>Code.gs</code> file contents</li>
-        <li>Click <strong>Deploy → New Deployment → Web App</strong> (Execute as: Me, Access: Anyone)</li>
-        <li>Copy the Web App URL and paste it into this HTML file where it says <code>const APPS_SCRIPT_URL = ""</code></li>
+        <li>Click <strong>Extensions → Apps Script</strong> → paste the <code>Code.gs</code> file contents → Save</li>
+        <li>Run any function once to authorize (accept all permission popups)</li>
+        <li>Click <strong>Deploy → New Deployment → Web App</strong><br>Execute as: <strong>Me</strong> · Who has access: <strong>Anyone</strong></li>
+        <li>Copy the Web App URL → paste into this HTML where it says <code>const APPS_SCRIPT_URL = ""</code></li>
+        <li>Test: open <code>your-url?action=getAll</code> in browser — should return JSON</li>
         <li>Share <code>yourfile.html?role=admin</code> with admins and <code>yourfile.html?role=user</code> with users</li>
       </ol>
     </div>`;
@@ -618,7 +634,7 @@ function renderDetail(pid){
       <div class="pc-prog-bar" style="height:7px"><div class="pc-prog-fill" style="width:${pct}%;background:${p.color}"></div></div>
     </div>`;
 
-  const yearOpts = `<option value="">All years</option>`+years.map(y=>`<option value="${y}">${y}</option>`).join("");
+  const yearOpts  = `<option value="">All years</option>`+years.map(y=>`<option value="${y}">${y}</option>`).join("");
   const monthOpts = `<option value="">All months</option>`+MONTHS.map((m,i)=>`<option value="${String(i+1).padStart(2,"0")}">${m}</option>`).join("");
 
   const filterHtml=`<div class="filter-wrap">
@@ -655,11 +671,11 @@ function renderDetail(pid){
 }
 
 function applyFilters(pid){
-  const p=getProj(pid); if(!p) return;
+  const p = getProj(pid); if(!p) return;
   const g = id=>(document.getElementById(id)||{value:""}).value;
   const search=g("tf-search").toLowerCase(), type=g("tf-type"),
         status=g("tf-status"), region=g("tf-region"),
-        year=g("tf-year"), month=g("tf-month");
+        year=g("tf-year"),     month=g("tf-month");
   let rows=(p.tickets||[]);
   if(search) rows=rows.filter(t=>(t.ticketNo+t.description+t.psd+t.owner+t.interface).toLowerCase().includes(search));
   if(type)   rows=rows.filter(t=>t.type===type);
@@ -724,10 +740,10 @@ function openTicket(mode, pid, ticketNoOrRi){
   const e=isEdit?p.tickets.find(t=>t.ticketNo===ticketNoOrRi)||{}:{};
   ticketState={mode,pid,origTicketNo:e.ticketNo};
 
-  const stOpts=STATUSES.map(s=>`<option value="${s.v}"${(e.status||"open")===s.v?" selected":""}>${s.l}</option>`).join("");
-  const tyOpts=TICKET_TYPES.map(t=>`<option value="${t}"${e.type===t?" selected":""}>${t}</option>`).join("");
-  const selR=e.regions||[];
-  const projOpts=`<option value="">— None —</option>`+projects.map(pr=>`<option value="${pr.name}"${e.handedTo===pr.name?" selected":""}>${pr.name}</option>`).join("");
+  const stOpts   = STATUSES.map(s=>`<option value="${s.v}"${(e.status||"open")===s.v?" selected":""}>${s.l}</option>`).join("");
+  const tyOpts   = TICKET_TYPES.map(t=>`<option value="${t}"${e.type===t?" selected":""}>${t}</option>`).join("");
+  const selR     = e.regions||[];
+  const projOpts = `<option value="">— None —</option>`+projects.map(pr=>`<option value="${pr.name}"${e.handedTo===pr.name?" selected":""}>${pr.name}</option>`).join("");
 
   document.getElementById("ticketModalTitle").textContent=isEdit?`Edit — ${e.ticketNo}`:`Add Ticket — ${p.name}`;
   document.getElementById("ticketModalBody").innerHTML=`
@@ -765,25 +781,26 @@ function openTicket(mode, pid, ticketNoOrRi){
 async function saveTicket(){
   const {mode,pid,origTicketNo}=ticketState;
   const p=getProj(pid);
-  const no=document.getElementById("t-no").value.trim();
+  const no  =document.getElementById("t-no").value.trim();
   const desc=document.getElementById("t-desc").value.trim();
   if(!no){document.getElementById("t-no").style.borderColor="var(--red)";return;}
   if(!desc){document.getElementById("t-desc").style.borderColor="var(--red)";return;}
 
   const selR=[...document.querySelectorAll("#ticketModal .rchip.sel")].map(c=>c.textContent);
   const ticket={
-    ticketNo:no, created:document.getElementById("t-date").value,
-    type:document.getElementById("t-type").value,
-    isCR:document.getElementById("t-cr").value==="true",
-    description:desc,
-    owner:document.getElementById("t-owner").value.trim(),
-    psd:document.getElementById("t-psd").value.trim()||"NO",
-    interface:document.getElementById("t-interface").value.trim(),
-    handedTo:document.getElementById("t-handed").value,
-    status:document.getElementById("t-status").value,
-    regions:selR,
-    remarks:document.getElementById("t-remarks").value.trim(),
-    _src:"manual"
+    ticketNo:  no,
+    created:   document.getElementById("t-date").value,
+    type:      document.getElementById("t-type").value,
+    isCR:      document.getElementById("t-cr").value==="true",
+    description: desc,
+    owner:     document.getElementById("t-owner").value.trim(),
+    psd:       document.getElementById("t-psd").value.trim()||"NO",
+    interface: document.getElementById("t-interface").value.trim(),
+    handedTo:  document.getElementById("t-handed").value,
+    status:    document.getElementById("t-status").value,
+    regions:   selR,
+    remarks:   document.getElementById("t-remarks").value.trim(),
+    _src:      "manual"
   };
 
   const btn=document.getElementById("saveTicketBtn");
@@ -791,15 +808,14 @@ async function saveTicket(){
 
   if(isConfigured()){
     let res;
-    if(mode==="add")  res=await apiPost({action:"addTicket",projectId:pid,ticket});
-    else              res=await apiPost({action:"updateTicket",projectId:pid,ticketNo:origTicketNo,ticket});
+    if(mode==="add") res=await apiPost({action:"addTicket",projectId:pid,ticket});
+    else             res=await apiPost({action:"updateTicket",projectId:pid,ticketNo:origTicketNo,ticket});
     if(!res||!res.success){
       showToast("Save failed — check connection","#F43F5E");
       btn.disabled=false; btn.textContent="Save Ticket"; return;
     }
     await loadData(true);
   } else {
-    // Local only
     const existing=mode==="edit"?p.tickets.find(t=>t.ticketNo===origTicketNo):null;
     if(mode==="add"){ticket.si=p.tickets.length+1; p.tickets.push(ticket);}
     else if(existing){ Object.assign(existing,ticket); }
@@ -943,7 +959,7 @@ async function confirmImport(){
 // ── MANAGE ────────────────────────────────────────────────
 function renderManage(){
   document.getElementById("manageList").innerHTML=`<div class="manage-tbl"><div class="tbl-wrap"><table class="tbl">
-    <thead><tr><th>#</th><th>Project</th><th>Interface</th><th>Owner</th><th>Tickets</th><th>Actions</th></tr></thead>
+    <thead><tr><th>#</th><th>Project / Account</th><th>Interface</th><th>Owner</th><th>Tickets</th><th>Actions</th></tr></thead>
     <tbody>${projects.map((p,i)=>`<tr>
       <td style="color:var(--dim)">${i+1}</td>
       <td><span style="display:inline-flex;align-items:center;gap:8px">
@@ -965,7 +981,12 @@ function openAddProject(){ document.getElementById("projModal").style.display="f
 async function saveNewProject(){
   const name=document.getElementById("np-name").value.trim();
   if(!name){document.getElementById("np-name").style.borderColor="var(--red)";return;}
-  const proj={name,iface:document.getElementById("np-iface").value.trim()||"—",ownerName:document.getElementById("np-owner").value.trim()||"—",color:COLORS[projects.length%COLORS.length]};
+  const proj={
+    name,
+    iface:     document.getElementById("np-iface").value.trim()||"—",
+    ownerName: document.getElementById("np-owner").value.trim()||"—",
+    color:     COLORS[projects.length%COLORS.length]
+  };
   const btn=document.getElementById("saveProjBtn");
   btn.disabled=true; btn.innerHTML=`<span class="spinner"></span> Creating...`;
 
