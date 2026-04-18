@@ -228,7 +228,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 <!-- UPLOAD MODAL -->
 <div id="uploadModal" class="modal-wrap" style="display:none">
   <div class="modal" style="max-width:600px">
-    <div class="modal-head"><h3>&#8679; Upload Excel — <span id="uploadProjName"></span></h3><button class="modal-close" onclick="closeM('uploadModal')">&#215;</button></div>
+    <div class="modal-head"><h3>&#8679; Upload Excel -- <span id="uploadProjName"></span></h3><button class="modal-close" onclick="closeM('uploadModal')">&#215;</button></div>
     <div class="modal-body" id="uploadBody"></div>
     <div class="modal-foot">
       <button class="btn btn-ghost" onclick="closeM('uploadModal')">Cancel</button>
@@ -256,11 +256,11 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 <div class="toast" id="toast"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
-// ════════════════════════════════════════════════════════
-//  ▶  PASTE YOUR APPS SCRIPT WEB APP URL BELOW
-// ════════════════════════════════════════════════════════
+// ================================================================
+//  >>  PASTE YOUR APPS SCRIPT WEB APP URL BELOW
+// ================================================================
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwmnTCxsQ8BKM-Jnky4KcwZjFi-HnROcjcmHz-IthLSpzTG_VVpN5Ox4GD2EDWs1ia7QA/exec";
-// ════════════════════════════════════════════════════════
+// ================================================================
 
 const APP_NAME       = "Project Health Tracker";
 const APP_SHORT_NAME = "PHTracker";
@@ -279,7 +279,7 @@ if (!["admin","user"].includes(currentRole)) currentRole = "user";
 let projects = [];
 let currentPage = "dashboard", currentProj = null, ticketState = {}, parsedImport = [];
 
-// ── HELPERS ───────────────────────────────────────────────────
+// -- HELPERS ---------------------------------------------------
 function today(){ return new Date().toISOString().slice(0,10); }
 function uid(){   return Math.random().toString(36).slice(2,8).toUpperCase(); }
 function nk(k){   return String(k).toLowerCase().replace(/[\s_\-]+/g,""); }
@@ -323,7 +323,7 @@ function getYears(){
   return [...ys].sort().reverse();
 }
 
-// ── API ───────────────────────────────────────────────────────
+// -- API -------------------------------------------------------
 const isConfigured = ()=> APPS_SCRIPT_URL && APPS_SCRIPT_URL.length > 10;
 
 // GET via JSONP to bypass CORS/tracking prevention completely
@@ -367,7 +367,7 @@ async function apiPost(body){
   } catch(e){ console.error("API POST error:", e); return null; }
 }
 
-// ── LOAD DATA ─────────────────────────────────────────────────
+// -- LOAD DATA -------------------------------------------------
 async function loadData(force){
   showLoading(true);
   const cached = localStorage.getItem("pht_data");
@@ -424,7 +424,7 @@ function getSeedData(){
   });
 }
 
-// ── NAVIGATION ────────────────────────────────────────────────
+// -- NAVIGATION ------------------------------------------------
 function init(){
   document.getElementById("pageTitle").textContent    = APP_NAME;
   document.getElementById("sidebarBrand").textContent = APP_SHORT_NAME;
@@ -470,12 +470,12 @@ function closeM(id){ document.getElementById(id).style.display="none"; }
   });
 });
 
-// ── DASHBOARD ─────────────────────────────────────────────────
+// -- DASHBOARD -------------------------------------------------
 function renderDashboard(){
   const search=(document.getElementById("dashSearch")||{value:""}).value.toLowerCase();
   let allO=0,allD=0,allT=0;
   projects.forEach(p=>{const s=projStats(p);allO+=s.open;allD+=s.done;allT+=s.total;});
-  document.getElementById("dashSub").textContent=`${projects.length} active projects · ${allT} total tickets`;
+  document.getElementById("dashSub").textContent=`${projects.length} active projects &middot; ${allT} total tickets`;
   document.getElementById("statStrip").innerHTML=[
     {n:projects.length,l:"Projects",      c:"#3B82F6"},
     {n:allT,           l:"Total Tickets", c:"#14B8A6"},
@@ -487,13 +487,13 @@ function renderDashboard(){
 
   if(!isConfigured()){
     const setupHtml=`<div class="setup-banner">
-      <h3>&#9888; Setup Required — Paste your Apps Script URL</h3>
+      <h3>&#9888; Setup Required -- Paste your Apps Script URL</h3>
       <ol>
-        <li>Go to <strong>sheets.google.com</strong> → create a new spreadsheet</li>
-        <li>Click <strong>Extensions → Apps Script</strong> → paste the <code>Code.gs</code> contents → Save</li>
+        <li>Go to <strong>sheets.google.com</strong> -> create a new spreadsheet</li>
+        <li>Click <strong>Extensions -> Apps Script</strong> -> paste the <code>Code.gs</code> contents -> Save</li>
         <li>Run any function once to authorize</li>
-        <li>Click <strong>Deploy → New Deployment → Web App</strong> · Execute as: <strong>Me</strong> · Access: <strong>Anyone</strong></li>
-        <li>Copy Web App URL → paste into this HTML at <code>const APPS_SCRIPT_URL = ""</code></li>
+        <li>Click <strong>Deploy -> New Deployment -> Web App</strong> &middot; Execute as: <strong>Me</strong> &middot; Access: <strong>Anyone</strong></li>
+        <li>Copy Web App URL -> paste into this HTML at <code>const APPS_SCRIPT_URL = ""</code></li>
       </ol>
     </div>`;
     document.getElementById("projGrid").innerHTML=setupHtml+filtered.map((p,i)=>projCardHtml(p,i)).join("");
@@ -510,8 +510,8 @@ function projCardHtml(p,i){
       <div class="pc-head">
         <div>
           <div class="pc-name">${p.name}</div>
-          <div class="pc-sub">${p.iface||"—"}</div>
-          <div class="pc-owner">&#128100; ${p.ownerName||"—"}</div>
+          <div class="pc-sub">${p.iface||"--"}</div>
+          <div class="pc-owner">&#128100; ${p.ownerName||"--"}</div>
         </div>
         <div class="pc-avatar" style="background:${AVBG[i%5]};color:${p.color}">${(p.name||"?")[0]}</div>
       </div>
@@ -529,14 +529,14 @@ function projCardHtml(p,i){
   </div>`;
 }
 
-// ── DETAIL ────────────────────────────────────────────────────
+// -- DETAIL ----------------------------------------------------
 function renderDetail(pid){
   const p=getProj(pid); if(!p) return;
   const isAdmin=currentRole==="admin";
   document.getElementById("detName").textContent=p.name;
   document.getElementById("detMeta").innerHTML=
-    `<span>&#127760; ${p.iface||"—"}</span>
-     <span>&#128100; ${p.ownerName||"—"}</span>
+    `<span>&#127760; ${p.iface||"--"}</span>
+     <span>&#128100; ${p.ownerName||"--"}</span>
      <span style="color:var(--muted)">${(p.tickets||[]).length} tickets total</span>`;
   document.getElementById("detActions").innerHTML=
     (isAdmin?`<button class="btn btn-green" onclick="openUpload('${pid}')">&#8679; Upload Excel</button>
@@ -625,18 +625,18 @@ function buildTicketTable(p,rows,isAdmin){
       </tr></thead>
       <tbody>${rows.map(t=>`<tr>
         <td style="color:var(--dim)">${t.si}</td>
-        <td style="color:var(--muted);white-space:nowrap">${t.created||"—"}</td>
+        <td style="color:var(--muted);white-space:nowrap">${t.created||"--"}</td>
         <td><strong>${t.ticketNo}</strong>${t._src==="import"?'<span class="src-imp">imported</span>':""}</td>
         <td>${typeBadge(t.type)}</td>
         <td><span class="badge ${t.isCR?"b-yes":"b-no"}">${t.isCR?"Yes":"No"}</span></td>
         <td style="max-width:180px;word-break:break-word">${t.description}</td>
-        <td style="color:var(--blue-l);white-space:nowrap">${t.owner||"—"}</td>
+        <td style="color:var(--blue-l);white-space:nowrap">${t.owner||"--"}</td>
         <td style="white-space:nowrap"><span class="badge ${t.psd&&t.psd!=="NO"?"b-jira":"b-no"}">${t.psd||"NO"}</span></td>
-        <td style="color:var(--muted);white-space:nowrap">${t.interface||"—"}</td>
-        <td style="color:${t.handedTo?"var(--amber-l)":"var(--dim)"};white-space:nowrap">${t.handedTo||"—"}</td>
+        <td style="color:var(--muted);white-space:nowrap">${t.interface||"--"}</td>
+        <td style="color:${t.handedTo?"var(--amber-l)":"var(--dim)"};white-space:nowrap">${t.handedTo||"--"}</td>
         <td>${statusBadge(t.status)}</td>
-        <td style="white-space:nowrap">${(t.regions||[]).map(r=>`<span class="badge b-no" style="margin:1px 2px">${r}</span>`).join("")||"—"}</td>
-        <td style="max-width:130px;color:var(--muted);word-break:break-word">${t.remarks||"—"}</td>
+        <td style="white-space:nowrap">${(t.regions||[]).map(r=>`<span class="badge b-no" style="margin:1px 2px">${r}</span>`).join("")||"--"}</td>
+        <td style="max-width:130px;color:var(--muted);word-break:break-word">${t.remarks||"--"}</td>
         ${isAdmin?`<td><div class="action-btns">
           <button class="act-btn act-edit" onclick="openTicket('edit','${p.id}','${t.ticketNo}')">Edit</button>
           <button class="act-btn act-del" onclick="deleteTicket('${p.id}','${t.ticketNo}')">Del</button>
@@ -646,7 +646,7 @@ function buildTicketTable(p,rows,isAdmin){
   </div>`;
 }
 
-// ── TICKET MODAL ──────────────────────────────────────────────
+// -- TICKET MODAL ----------------------------------------------
 function openTicket(mode,pid,ticketNoOrRi){
   const p=getProj(pid);
   const isEdit=mode==="edit";
@@ -655,8 +655,8 @@ function openTicket(mode,pid,ticketNoOrRi){
   const stOpts=STATUSES.map(s=>`<option value="${s.v}"${(e.status||"open")===s.v?" selected":""}>${s.l}</option>`).join("");
   const tyOpts=TICKET_TYPES.map(t=>`<option value="${t}"${e.type===t?" selected":""}>${t}</option>`).join("");
   const selR=e.regions||[];
-  const projOpts=`<option value="">— None —</option>`+projects.map(pr=>`<option value="${pr.name}"${e.handedTo===pr.name?" selected":""}>${pr.name}</option>`).join("");
-  document.getElementById("ticketModalTitle").textContent=isEdit?`Edit — ${e.ticketNo}`:`Add Ticket — ${p.name}`;
+  const projOpts=`<option value="">-- None --</option>`+projects.map(pr=>`<option value="${pr.name}"${e.handedTo===pr.name?" selected":""}>${pr.name}</option>`).join("");
+  document.getElementById("ticketModalTitle").textContent=isEdit?`Edit -- ${e.ticketNo}`:`Add Ticket -- ${p.name}`;
   document.getElementById("ticketModalBody").innerHTML=`
     <div class="field-row">
       <div class="field"><label>Ticket Number *</label><input id="t-no" value="${e.ticketNo||""}" placeholder="e.g. JIRA-001"></div>
@@ -712,7 +712,7 @@ async function saveTicket(){
     let res;
     if(mode==="add") res=await apiPost({action:"addTicket",projectId:pid,ticket});
     else             res=await apiPost({action:"updateTicket",projectId:pid,ticketNo:origTicketNo,ticket});
-    if(!res||!res.success){showToast("Save failed — check connection","#F43F5E");btn.disabled=false;btn.textContent="Save Ticket";return;}
+    if(!res||!res.success){showToast("Save failed -- check connection","#F43F5E");btn.disabled=false;btn.textContent="Save Ticket";return;}
     await loadData(true);
   } else {
     const existing=mode==="edit"?p.tickets.find(t=>t.ticketNo===origTicketNo):null;
@@ -741,7 +741,7 @@ async function deleteTicket(pid,ticketNo){
   showToast("Ticket deleted","#F43F5E");
 }
 
-// ── UPLOAD ────────────────────────────────────────────────────
+// -- UPLOAD ----------------------------------------------------
 function openUpload(pid){
   parsedImport=[];
   document.getElementById("uploadProjName").textContent=getProj(pid).name;
@@ -815,12 +815,12 @@ function processXL(file,pid){
       document.getElementById("parseStatus").textContent="";
       document.getElementById("importBtn").style.display="inline-flex";
       document.getElementById("previewArea").innerHTML=`
-        <div class="import-summary" style="margin-top:10px"><strong>Ready to import ${newOnes.length} ticket${newOnes.length!==1?"s":""}</strong>${dups.length?` · ${dups.length} duplicate(s) skipped`:""}</div>
+        <div class="import-summary" style="margin-top:10px"><strong>Ready to import ${newOnes.length} ticket${newOnes.length!==1?"s":""}</strong>${dups.length?` &middot; ${dups.length} duplicate(s) skipped`:""}</div>
         ${newOnes.length?`<div style="overflow-x:auto;margin-top:10px"><table class="prev-tbl">
           <thead><tr><th>Ticket No</th><th>Date</th><th>Type</th><th>Owner</th><th>PSD</th><th>Status</th></tr></thead>
           <tbody>${newOnes.slice(0,6).map(r=>`<tr>
             <td>${r.ticketNo}</td><td>${r.created}</td><td>${typeBadge(r.type)}</td>
-            <td>${r.owner||"—"}</td><td>${r.psd||"NO"}</td><td>${statusBadge(r.status)}</td>
+            <td>${r.owner||"--"}</td><td>${r.psd||"NO"}</td><td>${statusBadge(r.status)}</td>
           </tr>`).join("")}</tbody>
         </table>${newOnes.length>6?`<div style="font-size:11px;color:var(--muted);padding:6px 10px">...and ${newOnes.length-6} more</div>`:""}</div>`:""}`;
     }catch(err){document.getElementById("parseStatus").textContent="Error: "+err.message;}
@@ -845,7 +845,7 @@ async function confirmImport(){
   showToast(`Imported ${newOnes.length} tickets`,"#10B981");
 }
 
-// ── MANAGE ────────────────────────────────────────────────────
+// -- MANAGE ----------------------------------------------------
 function renderManage(){
   document.getElementById("manageList").innerHTML=`<div class="manage-tbl"><div class="tbl-wrap"><table class="tbl">
     <thead><tr><th>#</th><th>Project / Account</th><th>Interface</th><th>Owner</th><th>Tickets</th><th>Actions</th></tr></thead>
@@ -854,8 +854,8 @@ function renderManage(){
       <td><span style="display:inline-flex;align-items:center;gap:8px">
         <span style="width:10px;height:10px;border-radius:50%;background:${p.color};display:inline-block"></span>
         <strong style="color:${p.color}">${p.name}</strong></span></td>
-      <td style="color:var(--muted)">${p.iface||"—"}</td>
-      <td>${p.ownerName||"—"}</td>
+      <td style="color:var(--muted)">${p.iface||"--"}</td>
+      <td>${p.ownerName||"--"}</td>
       <td>${(p.tickets||[]).length}</td>
       <td><div class="action-btns">
         <button class="act-btn act-edit" onclick="navigate('detail','${p.id}')">View</button>
@@ -870,7 +870,7 @@ function openAddProject(){ document.getElementById("projModal").style.display="f
 async function saveNewProject(){
   const name=document.getElementById("np-name").value.trim();
   if(!name){document.getElementById("np-name").style.borderColor="var(--red)";return;}
-  const proj={name,iface:document.getElementById("np-iface").value.trim()||"—",ownerName:document.getElementById("np-owner").value.trim()||"—",color:COLORS[projects.length%COLORS.length]};
+  const proj={name,iface:document.getElementById("np-iface").value.trim()||"--",ownerName:document.getElementById("np-owner").value.trim()||"--",color:COLORS[projects.length%COLORS.length]};
   const btn=document.getElementById("saveProjBtn");
   btn.disabled=true; btn.innerHTML=`<span class="spinner"></span> Creating...`;
   if(isConfigured()){
