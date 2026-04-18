@@ -213,7 +213,6 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   </div>
 </div>
 
-					 
 <div id="ticketModal" class="modal-wrap" style="display:none">
   <div class="modal">
     <div class="modal-head"><h3 id="ticketModalTitle">Add Ticket</h3><button class="modal-close" onclick="closeM('ticketModal')">&#215;</button></div>
@@ -225,7 +224,6 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   </div>
 </div>
 
-					 
 <div id="uploadModal" class="modal-wrap" style="display:none">
   <div class="modal" style="max-width:600px">
     <div class="modal-head"><h3>&#8679; Upload Excel -- <span id="uploadProjName"></span></h3><button class="modal-close" onclick="closeM('uploadModal')">&#215;</button></div>
@@ -237,13 +235,12 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   </div>
 </div>
 
-						  
 <div id="projModal" class="modal-wrap" style="display:none">
   <div class="modal" style="max-width:460px">
     <div class="modal-head"><h3>New Project</h3><button class="modal-close" onclick="closeM('projModal')">&#215;</button></div>
     <div class="modal-body">
       <div class="field"><label>Project Name *</label><input id="np-name" placeholder="e.g. Account A"></div>
-      <!--<div class="field"><label>Interface / App</label><input id="np-iface" placeholder="e.g. EDIFECS Claims (837)"></div>-->
+																														  
       <div class="field"><label>Owner / Team Lead</label><input id="np-owner" placeholder="Name of team lead"></div>
     </div>
     <div class="modal-foot">
@@ -272,10 +269,9 @@ const COLORS       = ["#3B82F6","#10B981","#F59E0B","#8B5CF6","#F43F5E"];
 const AVBG         = ["rgba(59,130,246,0.18)","rgba(16,185,129,0.18)","rgba(245,158,11,0.18)","rgba(139,92,246,0.18)","rgba(244,63,94,0.18)"];
 const MONTHS       = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
-const params = new URLSearchParams(window.location.search);
+const params = new URLSearchParams(window.location.search);													
 // UPDATED: Use a secret key instead of just "admin"
 let currentRole = params.get("role") === "edifecs_admin_2026" ? "admin" : "user";
-																  
 
 let projects = [];
 let currentPage = "dashboard", currentProj = null, ticketState = {}, parsedImport = [];
@@ -327,7 +323,7 @@ function getYears(){
 // -- API -------------------------------------------------------
 const isConfigured = ()=> APPS_SCRIPT_URL && APPS_SCRIPT_URL.length > 10;
 
-// GET via JSONP to bypass CORS/tracking prevention completely
+															  
 function apiGet(params) {
   return new Promise((resolve) => {
     if (!isConfigured()) { resolve(null); return; }
@@ -336,9 +332,9 @@ function apiGet(params) {
     const url = APPS_SCRIPT_URL + "?" + new URLSearchParams({...params, callback: cbName});
 
     const script = document.createElement("script");
-    const timer  = setTimeout(() => {
-      cleanup(); resolve(null);
-    }, 10000);
+    const timer  = setTimeout(() => { cleanup(); resolve(null); }, 10000);
+							   
+			  
 
     window[cbName] = (data) => { cleanup(); resolve(data); };
 
@@ -354,7 +350,7 @@ function apiGet(params) {
   });
 }
 
-// POST via URLSearchParams (simple request, no preflight)
+														  
 async function apiPost(body){
   if(!isConfigured()) return null;
   try{
@@ -398,15 +394,16 @@ async function loadData(force){
 
 function getSeedData(){
   const names=[
-    {name:"Account A",iface:"EDIFECS Claims (837)",    ownerName:"Rajan M", color:"#3B82F6"},
-    {name:"Account B",iface:"Member Enrollment (834)", ownerName:"Sneha K", color:"#10B981"},
-    {name:"Account C",iface:"Payment Remittance (835)",ownerName:"Arjun V", color:"#F59E0B"},
-    {name:"Account D",iface:"Provider Directory",      ownerName:"Priya R", color:"#8B5CF6"},
-    {name:"Account E",iface:"Eligibility Checker",     ownerName:"Amal S",  color:"#F43F5E"},
+    {name:"Account A", ownerName:"Rajan M", color:"#3B82F6"},
+    {name:"Account B", ownerName:"Sneha K", color:"#10B981"},
+    {name:"Account C", ownerName:"Arjun V", color:"#F59E0B"},
+    {name:"Account D", ownerName:"Priya R", color:"#8B5CF6"},
+    {name:"Account E", ownerName:"Amal S",  color:"#F43F5E"},
   ];
   const dates=["2024-03-12","2024-07-05","2024-11-18","2025-01-22","2025-04-10","2025-04-17"];
   const sts  =["open","inprogress","hold","completed","open","inprogress"];
   const tys  =["JIRA","ITOPS","Exception","CR","JIRA","ITOPS"];
+  const ifaces=["Claims (837)","Member (834)","Payment (835)","Provider","Eligibility"];
   return names.map((n,pi)=>{
     const id="P"+(pi+1); const tickets=[];
     for(let i=0;i<6;i++){
@@ -416,7 +413,7 @@ function getSeedData(){
         type:tys[(pi+i)%6], isCR:i%3===0,
         description:`Sample issue ${i+1} for ${n.name}`,
         owner:n.ownerName, psd:i%2===0?"PSD-"+uid():"NO",
-        interface:n.iface, handedTo:i%4===0?names[(pi+1)%5].name:"",
+        interface:ifaces[(pi+i)%5], handedTo:i%4===0?names[(pi+1)%5].name:"",
         status:sts[(pi+i)%6], regions:i%2===0?["PROD","UAT"]:["SIT"],
         remarks:"", _src:"manual"
       });
@@ -484,19 +481,19 @@ function renderDashboard(){
     {n:allD,           l:"Completed",     c:"#10B981"},
   ].map(s=>`<div class="stat-box" style="border-color:${s.c}"><div class="sn" style="color:${s.c}">${s.n}</div><div class="sl">${s.l}</div></div>`).join("");
 
-  const filtered=projects.filter(p=>!search||(p.name+p.iface+p.ownerName).toLowerCase().includes(search));
+  const filtered=projects.filter(p=>!search||(p.name+p.ownerName).toLowerCase().includes(search));
 
   if(!isConfigured()){
-    const setupHtml=`<div class="setup-banner">
-      <h3>&#9888; Setup Required -- Paste your Apps Script URL</h3>
-      <ol>
-        <li>Go to <strong>sheets.google.com</strong> -> create a new spreadsheet</li>
-        <li>Click <strong>Extensions -> Apps Script</strong> -> paste the <code>Code.gs</code> contents -> Save</li>
-        <li>Run any function once to authorize</li>
-        <li>Click <strong>Deploy -> New Deployment -> Web App</strong> &middot; Execute as: <strong>Me</strong> &middot; Access: <strong>Anyone</strong></li>
-        <li>Copy Web App URL -> paste into this HTML at <code>const APPS_SCRIPT_URL = ""</code></li>
-      </ol>
-    </div>`;
+    const setupHtml=`<div class="setup-banner"><h3>&#9888; Setup Required -- Paste your Apps Script URL</h3><ol><li>Go to <strong>sheets.google.com</strong> -> create spreadsheet</li><li>Extensions -> Apps Script -> paste <code>Code.gs</code> -> Save</li><li>Deploy -> New Deployment -> Web App (Execute as: Me, Access: Anyone)</li><li>Copy URL -> paste into this HTML at <code>const APPS_SCRIPT_URL</code></li></ol></div>`;
+																   
+		  
+																					 
+																													
+												   
+																																							 
+																									
+		   
+			
     document.getElementById("projGrid").innerHTML=setupHtml+filtered.map((p,i)=>projCardHtml(p,i)).join("");
   } else {
     document.getElementById("projGrid").innerHTML=filtered.map((p,i)=>projCardHtml(p,i)).join("");
@@ -511,7 +508,7 @@ function projCardHtml(p,i){
       <div class="pc-head">
         <div>
           <div class="pc-name">${p.name}</div>
-          <div class="pc-sub">${p.iface||"--"}</div>
+													
           <div class="pc-owner">&#128100; ${p.ownerName||"--"}</div>
         </div>
         <div class="pc-avatar" style="background:${AVBG[i%5]};color:${p.color}">${(p.name||"?")[0]}</div>
@@ -536,8 +533,8 @@ function renderDetail(pid){
   const isAdmin=currentRole==="admin";
   document.getElementById("detName").textContent=p.name;
   document.getElementById("detMeta").innerHTML=
-    `<span>&#127760; ${p.iface||"--"}</span>
-     <span>&#128100; ${p.ownerName||"--"}</span>
+											
+    `<span>&#128100; ${p.ownerName||"--"}</span>
      <span style="color:var(--muted)">${(p.tickets||[]).length} tickets total</span>`;
   document.getElementById("detActions").innerHTML=
     (isAdmin?`<button class="btn btn-green" onclick="openUpload('${pid}')">&#8679; Upload Excel</button>
@@ -676,7 +673,7 @@ function openTicket(mode,pid,ticketNoOrRi){
       <div class="field"><label>Owner</label><input id="t-owner" value="${e.owner||""}" placeholder="Who is working on this?"></div>
       <div class="field"><label>PSD Ticket Number</label><input id="t-psd" value="${e.psd||""}" placeholder="PSD-XXXX or NO"></div>
     </div>
-    <div class="field"><label>Interface</label><input id="t-interface" value="${e.interface||p.iface||""}" placeholder="Interface name"></div>
+    <div class="field"><label>Interface</label><input id="t-interface" value="${e.interface||""}" placeholder="Interface name"></div>
     <div class="field-row">
       <div class="field"><label>Handed to Team</label><select id="t-handed">${projOpts}</select></div>
       <div class="field"><label>Deployed Regions</label>
@@ -713,7 +710,7 @@ async function saveTicket(){
     let res;
     if(mode==="add") res=await apiPost({action:"addTicket",projectId:pid,ticket});
     else             res=await apiPost({action:"updateTicket",projectId:pid,ticketNo:origTicketNo,ticket});
-    if(!res||!res.success){showToast("Save failed -- check connection","#F43F5E");btn.disabled=false;btn.textContent="Save Ticket";return;}
+    if(!res||!res.success){showToast("Save failed","#F43F5E");btn.disabled=false;btn.textContent="Save Ticket";return;}
     await loadData(true);
   } else {
     const existing=mode==="edit"?p.tickets.find(t=>t.ticketNo===origTicketNo):null;
@@ -727,7 +724,7 @@ async function saveTicket(){
 }
 
 async function deleteTicket(pid,ticketNo){
-  if(!confirm("Delete this ticket? Cannot be undone.")) return;
+  if(!confirm("Delete this ticket?")) return;
   if(isConfigured()){
     const res=await apiPost({action:"deleteTicket",projectId:pid,ticketNo});
     if(!res||!res.success){showToast("Delete failed","#F43F5E");return;}
@@ -748,34 +745,34 @@ function openUpload(pid){
   document.getElementById("uploadProjName").textContent=getProj(pid).name;
   document.getElementById("importBtn").style.display="none";
   document.getElementById("uploadBody").innerHTML=`
-    <div class="col-guide">
-      <strong>Excel sheet must be named "tickets" with these columns:</strong>
-      <div class="cg-grid">
-        <div style="display:flex;gap:6px"><span class="cg-key">ticket_no</span><span>Ticket identifier</span></div>
-        <div style="display:flex;gap:6px"><span class="cg-key">created</span><span>YYYY-MM-DD</span></div>
-        <div style="display:flex;gap:6px"><span class="cg-key">type</span><span>JIRA/ITOPS/Exception/CR</span></div>
-        <div style="display:flex;gap:6px"><span class="cg-key">is_cr</span><span>yes / no</span></div>
-        <div style="display:flex;gap:6px"><span class="cg-key">description</span><span>Ticket description</span></div>
-        <div style="display:flex;gap:6px"><span class="cg-key">owner</span><span>Resource name</span></div>
-        <div style="display:flex;gap:6px"><span class="cg-key">psd</span><span>PSD number or NO</span></div>
-        <div style="display:flex;gap:6px"><span class="cg-key">interface</span><span>Interface name</span></div>
-        <div style="display:flex;gap:6px"><span class="cg-key">handed_to</span><span>Team or blank</span></div>
-        <div style="display:flex;gap:6px"><span class="cg-key">status</span><span>open/inprogress/hold/completed</span></div>
-        <div style="display:flex;gap:6px"><span class="cg-key">regions</span><span>PROD,UAT (comma-sep)</span></div>
-        <div style="display:flex;gap:6px"><span class="cg-key">remarks</span><span>Optional notes</span></div>
-      </div>
-    </div>
-    <div class="upload-zone" id="dropZone" onclick="document.getElementById('xlFile').click()"
-      ondragover="event.preventDefault();this.classList.add('drag')"
-      ondragleave="this.classList.remove('drag')"
-      ondrop="handleDrop(event,'${pid}')">
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="1.5" style="margin:0 auto 8px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-      <div class="uz-title">Click or drag your .xlsx file here</div>
-      <div class="uz-sub">Sheet name must be "tickets"</div>
-      <input type="file" id="xlFile" accept=".xlsx,.xls" onchange="handleFileSelect(event,'${pid}')">
-    </div>
-    <div id="parseStatus" style="font-size:12px;color:var(--muted);text-align:center;min-height:16px;margin-top:8px"></div>
-    <div id="previewArea"></div>`;
+    <div class="col-guide"><strong>Excel sheet: "tickets"</strong><div class="cg-grid"><div style="display:flex;gap:6px"><span class="cg-key">ticket_no</span></div><div style="display:flex;gap:6px"><span class="cg-key">created</span></div><div style="display:flex;gap:6px"><span class="cg-key">type</span></div><div style="display:flex;gap:6px"><span class="cg-key">is_cr</span></div><div style="display:flex;gap:6px"><span class="cg-key">description</span></div><div style="display:flex;gap:6px"><span class="cg-key">owner</span></div><div style="display:flex;gap:6px"><span class="cg-key">psd</span></div><div style="display:flex;gap:6px"><span class="cg-key">interface</span></div><div style="display:flex;gap:6px"><span class="cg-key">status</span></div></div></div>
+																			  
+						   
+																												   
+																										  
+																													
+																									  
+																													  
+																										   
+																											
+																												
+																											   
+																															 
+																													
+																											  
+			
+		  
+    <div class="upload-zone" id="dropZone" onclick="document.getElementById('xlFile').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDrop(event,'${pid}')">
+																	
+												 
+										  
+																																																																 
+																	
+															
+      <div class="uz-title">Click or drag your .xlsx file here</div><input type="file" id="xlFile" accept=".xlsx,.xls" onchange="handleFileSelect(event,'${pid}')">
+		  
+    </div><div id="parseStatus" style="font-size:12px;color:var(--muted);text-align:center;margin-top:8px"></div><div id="previewArea"></div>`;
+								  
   ticketState._uploadPid=pid;
   document.getElementById("uploadModal").style.display="flex";
 }
@@ -784,47 +781,47 @@ function handleDrop(e,pid){e.preventDefault();document.getElementById("dropZone"
 function handleFileSelect(e,pid){processXL(e.target.files[0],pid);}
 
 function processXL(file,pid){
-  document.getElementById("parseStatus").textContent="Reading file...";
+  document.getElementById("parseStatus").textContent="Reading...";
   const reader=new FileReader();
   reader.onload=ev=>{
     try{
       const wb=XLSX.read(ev.target.result,{type:"array"});
-      const sn=wb.SheetNames.find(s=>s.toLowerCase().replace(/\s/g,"").includes("ticket"))||wb.SheetNames[0];
+      const sn=wb.SheetNames.find(s=>s.toLowerCase().includes("ticket"))||wb.SheetNames[0];
       const rows=XLSX.utils.sheet_to_json(wb.Sheets[sn],{defval:""});
-      if(!rows.length){document.getElementById("parseStatus").textContent="No data found.";return;}
-      const p=getProj(pid);
-      const existing=new Set((p.tickets||[]).map(t=>t.ticketNo));
-      const stMap={"open":"open","in progress":"inprogress","inprogress":"inprogress","in-progress":"inprogress","hold":"hold","on hold":"hold","completed":"completed","done":"completed"};
+      if(!rows.length) return;
+						   
+      const p=getProj(pid); const existing=new Set((p.tickets||[]).map(t=>t.ticketNo));
+      const stMap={"open":"open","inprogress":"inprogress","hold":"hold","completed":"completed","done":"completed"};
       parsedImport=rows.map((row,i)=>{
-        const nr={};Object.keys(row).forEach(k=>nr[nk(k)]=row[k]);
-        const rg=String(nr.regions||"").split(",").map(r=>r.trim().toUpperCase()).filter(r=>REGIONS.includes(r));
+        const nr={}; Object.keys(row).forEach(k=>nr[nk(k)]=row[k]);
+																																																																		  
         const tno=String(nr.ticketno||nr.ticket_no||`IMP-${uid()}`).trim();
         return{
-          _src:"import",si:(p.tickets||[]).length+i+1,
-          ticketNo:tno,created:String(nr.created||today()).trim(),
+													  
+          _src:"import",si:(p.tickets||[]).length+i+1,ticketNo:tno,created:String(nr.created||today()).trim(),
           type:TICKET_TYPES.includes(String(nr.type||"").trim())?String(nr.type).trim():"JIRA",
           isCR:String(nr.iscr||nr.is_cr||"no").toLowerCase()==="yes",
-          description:String(nr.description||"").trim()||"(no description)",
-          owner:String(nr.owner||"").trim(),psd:String(nr.psd||"NO").trim(),
-          interface:String(nr.interface||"").trim(),
-          handedTo:String(nr.handedto||nr.handed_to||"").trim(),
+          description:String(nr.description||"").trim(),owner:String(nr.owner||"").trim(),
+          psd:String(nr.psd||"NO").trim(),interface:String(nr.interface||"").trim(),
+													
+																
           status:stMap[String(nr.status||"").toLowerCase().trim()]||"open",
-          regions:rg,remarks:String(nr.remarks||"").trim(),_dup:existing.has(tno)
+          regions:String(nr.regions||"").split(",").filter(r=>r),_dup:existing.has(tno)
         };
       });
-      const newOnes=parsedImport.filter(r=>!r._dup),dups=parsedImport.filter(r=>r._dup);
-      document.getElementById("parseStatus").textContent="";
+																						
+															
       document.getElementById("importBtn").style.display="inline-flex";
-      document.getElementById("previewArea").innerHTML=`
-        <div class="import-summary" style="margin-top:10px"><strong>Ready to import ${newOnes.length} ticket${newOnes.length!==1?"s":""}</strong>${dups.length?` &middot; ${dups.length} duplicate(s) skipped`:""}</div>
-        ${newOnes.length?`<div style="overflow-x:auto;margin-top:10px"><table class="prev-tbl">
-          <thead><tr><th>Ticket No</th><th>Date</th><th>Type</th><th>Owner</th><th>PSD</th><th>Status</th></tr></thead>
-          <tbody>${newOnes.slice(0,6).map(r=>`<tr>
-            <td>${r.ticketNo}</td><td>${r.created}</td><td>${typeBadge(r.type)}</td>
-            <td>${r.owner||"--"}</td><td>${r.psd||"NO"}</td><td>${statusBadge(r.status)}</td>
-          </tr>`).join("")}</tbody>
-        </table>${newOnes.length>6?`<div style="font-size:11px;color:var(--muted);padding:6px 10px">...and ${newOnes.length-6} more</div>`:""}</div>`:""}`;
-    }catch(err){document.getElementById("parseStatus").textContent="Error: "+err.message;}
+      document.getElementById("parseStatus").textContent=`Ready to import ${parsedImport.length} tickets.`;
+																																																						
+																							   
+																													   
+												  
+																					
+																							 
+								   
+																																						   
+    }catch(err){console.error(err);}
   };
   reader.readAsArrayBuffer(file);
 }
@@ -843,19 +840,19 @@ async function confirmImport(){
     buildProjNav(); renderDetail(pid);
   }
   closeM("uploadModal"); btn.disabled=false; btn.innerHTML="Import Data";
-  showToast(`Imported ${newOnes.length} tickets`,"#10B981");
+															
 }
 
 // -- MANAGE ----------------------------------------------------
 function renderManage(){
   document.getElementById("manageList").innerHTML=`<div class="manage-tbl"><div class="tbl-wrap"><table class="tbl">
-    <thead><tr><th>#</th><th>Project / Account</th><th>Interface</th><th>Owner</th><th>Tickets</th><th>Actions</th></tr></thead>
+    <thead><tr><th>#</th><th>Project / Account</th><th>Owner</th><th>Tickets</th><th>Actions</th></tr></thead>
     <tbody>${projects.map((p,i)=>`<tr>
       <td style="color:var(--dim)">${i+1}</td>
       <td><span style="display:inline-flex;align-items:center;gap:8px">
         <span style="width:10px;height:10px;border-radius:50%;background:${p.color};display:inline-block"></span>
         <strong style="color:${p.color}">${p.name}</strong></span></td>
-      <td style="color:var(--muted)">${p.iface||"--"}</td>
+														  
       <td>${p.ownerName||"--"}</td>
       <td>${(p.tickets||[]).length}</td>
       <td><div class="action-btns">
@@ -870,14 +867,14 @@ function openAddProject(){ document.getElementById("projModal").style.display="f
 
 async function saveNewProject(){
   const name=document.getElementById("np-name").value.trim();
-  if(!name){document.getElementById("np-name").style.borderColor="var(--red)";return;}
-  const proj={name,iface:document.getElementById("np-iface").value.trim()||"--",ownerName:document.getElementById("np-owner").value.trim()||"--",color:COLORS[projects.length%COLORS.length]};
+  if(!name) return;
+  const proj={name,ownerName:document.getElementById("np-owner").value.trim()||"--",color:COLORS[projects.length%COLORS.length]};
   const btn=document.getElementById("saveProjBtn");
   btn.disabled=true; btn.innerHTML=`<span class="spinner"></span> Creating...`;
   if(isConfigured()){
     const res=await apiPost({action:"addProject",project:proj});
     if(res&&res.success) await loadData(true);
-    else showToast("Failed to create project","#F43F5E");
+														 
   } else {
     proj.id="P"+Date.now(); proj.tickets=[];
     projects.push(proj);
@@ -889,17 +886,17 @@ async function saveNewProject(){
 }
 
 async function deleteProject(id){
-  if(!confirm("Delete this project and ALL its tickets?")) return;
+  if(!confirm("Delete this project?")) return;
   if(isConfigured()){
     const res=await apiPost({action:"deleteProject",projectId:id});
     if(res&&res.success) await loadData(true);
-    else {showToast("Delete failed","#F43F5E");return;}
+													   
   } else {
     projects=projects.filter(p=>p.id!==id);
     localStorage.setItem("pht_data",JSON.stringify(projects));
     buildProjNav(); renderManage();
   }
-  showToast("Project deleted","#F43F5E");
+										 
 }
 
 init();
